@@ -60,7 +60,14 @@ export default function Home() {
       members: []
     };
     
-    setGroups([...groups, newGroup]);
+    setGroups(prevGroups => {
+      const nuevos = [...prevGroups, newGroup];
+      // Si es el primer grupo, seleccionarlo automáticamente
+      if (nuevos.length === 1) {
+        setSelectedGroupForMember(newGroup.id);
+      }
+      return nuevos;
+    });
     setNewGroupName("");
   };
 
@@ -98,12 +105,16 @@ export default function Home() {
 
   // Eliminar un grupo
   const removeGroup = (groupId: string) => {
-    setGroups(groups.filter(group => group.id !== groupId));
-    // Actualizar selección si es necesario
+    setGroups(prevGroups => {
+      const nuevos = prevGroups.filter(group => group.id !== groupId);
+      // Si el grupo eliminado era el seleccionado, actualizar selección
+      if (selectedGroupForMember === groupId) {
+        setSelectedGroupForMember(nuevos.length > 0 ? nuevos[0].id : null);
+      }
+      return nuevos;
+    });
+    // Actualizar selección de grupos para sorteo
     setSelectedGroups(selectedGroups.filter(id => id !== groupId));
-    if (selectedGroupForMember === groupId) {
-      setSelectedGroupForMember(null);
-    }
   };
 
   // Manejar la selección de grupos para el sorteo
